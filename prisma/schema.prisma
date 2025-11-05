@@ -1,0 +1,78 @@
+// /prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Hospital {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  name          String
+  passwordHash  String   @map("password_hash")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  pickups       Pickup[]
+
+  @@map("hospital")
+}
+
+model Driver {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  name          String
+  passwordHash  String   @map("password_hash")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  pickups       Pickup[]
+
+  @@map("driver")
+}
+
+model Pickup {
+  id            String    @id @default(uuid())
+  hospitalId    String    @map("hospital_id")
+  driverId      String    @map("driver_id")
+  collectedAt   DateTime  @map("collected_at")
+  status        PickupStatus @default(COLLECTED)
+  note          String?   @db.Text
+  weightKg      Float     @map("weight_kg")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  
+  hospital      Hospital  @relation(fields: [hospitalId], references: [id])
+  driver        Driver    @relation(fields: [driverId], references: [id])
+  photos        PickupPhoto[]
+
+  @@index([hospitalId])
+  @@index([driverId])
+  @@index([status])
+  @@map("pickup")
+}
+
+enum PickupStatus {
+  COLLECTED    // จัดเก็บสำเร็จ
+  IN_TRANSIT   // นำส่งเตาเผา
+}
+
+model PickupPhoto {
+  id            String   @id @default(uuid())
+  pickupId      String   @map("pickup_id")
+  fileName      String   @map("file_name")
+  mimeType      String   @map("mime_type")
+  fileSize      Int      @map("file_size")
+  createdAt     DateTime @default(now()) @map("created_at")
+  
+  pickup        Pickup   @relation(fields: [pickupId], references: [id], onDelete: Cascade)
+
+  @@index([pickupId])
+  @@map("pickup_photo")
+}
