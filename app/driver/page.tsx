@@ -57,11 +57,16 @@ const getStatusColor = (status: string): string => {
 const formatThaiDate = (dateString: string): string => {
   const date = new Date(dateString)
   
-  const day = date.getDate()
-  const month = date.getMonth() + 1
-  const year = date.getFullYear() + 543
-  const hours = date.getHours().toString().padStart(2, '0')
-  const minutes = date.getMinutes().toString().padStart(2, '0')
+  // แปลงเป็นเวลาไทย (UTC+7)
+  const thailandOffset = 7 * 60 // 7 ชั่วโมง = 420 นาที
+  const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000)
+  const thailandTime = new Date(utcTime + (thailandOffset * 60000))
+  
+  const day = thailandTime.getDate()
+  const month = thailandTime.getMonth() + 1
+  const year = thailandTime.getFullYear() + 543
+  const hours = thailandTime.getHours().toString().padStart(2, '0')
+  const minutes = thailandTime.getMinutes().toString().padStart(2, '0')
   
   const monthNames = [
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
@@ -77,11 +82,17 @@ const formatWeight = (weight: number): string => {
 
 const formatDateForInput = (dateString: string): string => {
   const date = new Date(dateString)
-  const day = date.getDate().toString().padStart(2, '0')
-  const month = (date.getMonth() + 1).toString().padStart(2, '0')
-  const year = date.getFullYear() + 543
-  const hours = date.getHours().toString().padStart(2, '0')
-  const minutes = date.getMinutes().toString().padStart(2, '0')
+  
+  // แปลงเป็นเวลาไทย (UTC+7)
+  const thailandOffset = 7 * 60
+  const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000)
+  const thailandTime = new Date(utcTime + (thailandOffset * 60000))
+  
+  const day = thailandTime.getDate().toString().padStart(2, '0')
+  const month = (thailandTime.getMonth() + 1).toString().padStart(2, '0')
+  const year = thailandTime.getFullYear() + 543
+  const hours = thailandTime.getHours().toString().padStart(2, '0')
+  const minutes = thailandTime.getMinutes().toString().padStart(2, '0')
   return `${day}/${month}/${year} ${hours}:${minutes}`
 }
 
@@ -647,7 +658,7 @@ export default function DriverPage() {
                             }}
                           >
                             <img
-                              src={`public/uploads/${photo.fileName}`}
+                              src={`/public/uploads/${photo.fileName}`}
                               alt="รูปภาพ"
                               style={{
                                 width: '100%',
@@ -964,7 +975,7 @@ export default function DriverPage() {
             ✕
           </button>
           <img
-            src={`public/uploads/${selectedPhoto}`}
+            src={`/public/uploads/${selectedPhoto}`}
             alt="รูปภาพขยาย"
             style={{
               maxWidth: '90%',
