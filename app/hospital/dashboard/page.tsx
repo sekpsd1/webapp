@@ -51,14 +51,21 @@ const getStatusColor = (status: string): string => {
 const formatThaiDate = (dateString: string): string => {
   const date = new Date(dateString)
   
-  // แปลงเป็นเวลาไทย (UTC+7)
-  const thaiDate = new Date(date.getTime() + (7 * 60 * 60 * 1000))
+  // แปลงเป็น UTC timestamp
+  const utcTimestamp = date.getTime()
   
-  const day = thaiDate.getDate()
-  const month = thaiDate.getMonth() + 1
-  const year = thaiDate.getFullYear() + 543 // แปลง ค.ศ. เป็น พ.ศ.
-  const hours = thaiDate.getHours().toString().padStart(2, '0')
-  const minutes = thaiDate.getMinutes().toString().padStart(2, '0')
+  // เพิ่ม 7 ชั่วโมง (Thailand timezone)
+  const thailandTimestamp = utcTimestamp + (7 * 60 * 60 * 1000)
+  
+  // สร้าง Date object ใหม่
+  const thailandDate = new Date(thailandTimestamp)
+  
+  // ใช้ UTC methods เพื่อหลีกเลี่ยง browser timezone
+  const day = thailandDate.getUTCDate()
+  const month = thailandDate.getUTCMonth() + 1
+  const year = thailandDate.getUTCFullYear() + 543
+  const hours = thailandDate.getUTCHours().toString().padStart(2, '0')
+  const minutes = thailandDate.getUTCMinutes().toString().padStart(2, '0')
   
   const monthNames = [
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
@@ -807,7 +814,7 @@ export default function HospitalDashboardPage() {
             ✕
           </button>
           <img
-            src={`/uploads/${selectedPhoto}`}
+            src={`/public/uploads/${selectedPhoto}`}
             alt="รูปภาพขยาย"
             style={{
               maxWidth: '90%',
