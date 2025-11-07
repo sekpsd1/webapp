@@ -57,16 +57,21 @@ const getStatusColor = (status: string): string => {
 const formatThaiDate = (dateString: string): string => {
   const date = new Date(dateString)
   
-  // แปลงเป็นเวลาไทย (UTC+7)
-  const thailandOffset = 7 * 60 // 7 ชั่วโมง = 420 นาที
-  const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000)
-  const thailandTime = new Date(utcTime + (thailandOffset * 60000))
+  // แปลงเป็น UTC timestamp
+  const utcTimestamp = date.getTime()
   
-  const day = thailandTime.getDate()
-  const month = thailandTime.getMonth() + 1
-  const year = thailandTime.getFullYear() + 543
-  const hours = thailandTime.getHours().toString().padStart(2, '0')
-  const minutes = thailandTime.getMinutes().toString().padStart(2, '0')
+  // เพิ่ม 7 ชั่วโมง (Thailand timezone)
+  const thailandTimestamp = utcTimestamp + (7 * 60 * 60 * 1000)
+  
+  // สร้าง Date object ใหม่
+  const thailandDate = new Date(thailandTimestamp)
+  
+  // ใช้ UTC methods เพื่อหลีกเลี่ยง browser timezone
+  const day = thailandDate.getUTCDate()
+  const month = thailandDate.getUTCMonth() + 1
+  const year = thailandDate.getUTCFullYear() + 543
+  const hours = thailandDate.getUTCHours().toString().padStart(2, '0')
+  const minutes = thailandDate.getUTCMinutes().toString().padStart(2, '0')
   
   const monthNames = [
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
@@ -83,16 +88,21 @@ const formatWeight = (weight: number): string => {
 const formatDateForInput = (dateString: string): string => {
   const date = new Date(dateString)
   
-  // แปลงเป็นเวลาไทย (UTC+7)
-  const thailandOffset = 7 * 60
-  const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000)
-  const thailandTime = new Date(utcTime + (thailandOffset * 60000))
+  // แปลงเป็น UTC timestamp
+  const utcTimestamp = date.getTime()
   
-  const day = thailandTime.getDate().toString().padStart(2, '0')
-  const month = (thailandTime.getMonth() + 1).toString().padStart(2, '0')
-  const year = thailandTime.getFullYear() + 543
-  const hours = thailandTime.getHours().toString().padStart(2, '0')
-  const minutes = thailandTime.getMinutes().toString().padStart(2, '0')
+  // เพิ่ม 7 ชั่วโมง
+  const thailandTimestamp = utcTimestamp + (7 * 60 * 60 * 1000)
+  
+  // สร้าง Date object ใหม่
+  const thailandDate = new Date(thailandTimestamp)
+  
+  // ใช้ UTC methods
+  const day = thailandDate.getUTCDate().toString().padStart(2, '0')
+  const month = (thailandDate.getUTCMonth() + 1).toString().padStart(2, '0')
+  const year = thailandDate.getUTCFullYear() + 543
+  const hours = thailandDate.getUTCHours().toString().padStart(2, '0')
+  const minutes = thailandDate.getUTCMinutes().toString().padStart(2, '0')
   return `${day}/${month}/${year} ${hours}:${minutes}`
 }
 
@@ -214,21 +224,11 @@ export default function DriverPage() {
       formData.append('status', status)
       formData.append('note', note)
       
-      console.log('=== FORM SUBMIT DEBUG ===')
-      console.log('Photos in state:', photos.length)
-      console.log('Photos details:', photos.map(p => ({ name: p.name, size: p.size })))
-      
       if (photos.length > 0) {
-        photos.forEach((photo, index) => {
-          console.log(`Appending photo ${index + 1}:`, photo.name, photo.size, 'bytes')
+        photos.forEach((photo) => {
           formData.append('photos', photo)
         })
-      } else {
-        console.warn('NO PHOTOS TO UPLOAD!')
       }
-      
-      console.log('FormData keys:', Array.from(formData.keys()))
-      console.log('========================')
 
       const url = editingPickup 
         ? `/api/driver/${editingPickup.id}`
