@@ -22,6 +22,22 @@ interface DashboardStats {
   }>;
 }
 
+const formatThaiDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear() + 543;
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  
+  const monthNames = [
+    'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+  ];
+  
+  return `${day} ${monthNames[month - 1]} ${year} ${hours}:${minutes} น.`;
+};
+
 export default function AdminDashboard() {
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -61,130 +77,241 @@ export default function AdminDashboard() {
     }
   };
 
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('th-TH', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: 'Asia/Bangkok',
-    }).format(date);
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f9fafb'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            border: '4px solid #e5e7eb',
+            borderTop: '4px solid #7c3aed',
+            borderRadius: '50%',
+            margin: '0 auto',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p style={{ marginTop: '16px', color: '#6b7280' }}>กำลังโหลดข้อมูล...</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
-              <p className="text-sm text-gray-600 mt-1">ยินดีต้อนรับ, {adminName}</p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => router.push('/admin/drivers')}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                จัดการพนักงาน
-              </button>
-              <button
-                onClick={() => router.push('/admin/hospitals')}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                จัดการโรงพยาบาล
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                ออกจากระบบ
-              </button>
-            </div>
+      <header style={{
+        background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+        color: 'white'
+      }}>
+        <div style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '24px 16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
+          <div>
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              marginBottom: '4px'
+            }}>
+              🛡️ Admin Dashboard
+            </h1>
+            <p style={{ color: '#e9d5ff', fontSize: '14px' }}>
+              ยินดีต้อนรับ, {adminName}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => router.push('/admin/drivers')}
+              style={{
+                padding: '10px 20px',
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                fontSize: '14px',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#3b82f6'}
+            >
+              👷 จัดการพนักงาน
+            </button>
+            <button
+              onClick={() => router.push('/admin/hospitals')}
+              style={{
+                padding: '10px 20px',
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                fontSize: '14px',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#059669'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#10b981'}
+            >
+              🏥 จัดการโรงพยาบาล
+            </button>
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: '10px 20px',
+                background: '#dc2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                fontSize: '14px',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#b91c1c'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#dc2626'}
+            >
+              ออกจากระบบ
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '32px 16px'
+      }}>
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '24px',
+          marginBottom: '32px'
+        }}>
           <StatCard
             title="การเก็บขยะทั้งหมด"
             value={stats?.totalCollections || 0}
             icon="📊"
-            color="bg-blue-500"
+            color="#3b82f6"
           />
           <StatCard
             title="พนักงานทั้งหมด"
             value={stats?.totalDrivers || 0}
             icon="👷"
-            color="bg-green-500"
+            color="#10b981"
           />
           <StatCard
             title="โรงพยาบาลทั้งหมด"
             value={stats?.totalHospitals || 0}
             icon="🏥"
-            color="bg-purple-500"
+            color="#7c3aed"
           />
           <StatCard
             title="เก็บวันนี้"
             value={stats?.todayCollections || 0}
             icon="📅"
-            color="bg-orange-500"
+            color="#f59e0b"
           />
         </div>
 
         {/* Status Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">สถานะการเก็บขยะ</h3>
-            <div className="space-y-3">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '24px',
+          marginBottom: '32px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            padding: '24px'
+          }}>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#1f2937',
+              marginBottom: '16px'
+            }}>
+              สถานะการเก็บขยะ
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <StatusBar
                 label="จัดเก็บสำเร็จ"
                 value={stats?.collectedStatus || 0}
                 total={stats?.totalCollections || 0}
-                color="bg-green-500"
+                color="#10b981"
               />
               <StatusBar
                 label="นำส่งเตาเผา"
                 value={stats?.inTransitStatus || 0}
                 total={stats?.totalCollections || 0}
-                color="bg-blue-500"
+                color="#3b82f6"
               />
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">ข้อมูลสรุป</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">สถานะ COLLECTED:</span>
-                <span className="font-semibold text-green-600">
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            padding: '24px'
+          }}>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#1f2937',
+              marginBottom: '16px'
+            }}>
+              ข้อมูลสรุป
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span style={{ color: '#6b7280', fontSize: '14px' }}>สถานะ COLLECTED:</span>
+                <span style={{ fontWeight: '600', color: '#10b981', fontSize: '16px' }}>
                   {stats?.collectedStatus || 0} รายการ
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">สถานะ IN_TRANSIT:</span>
-                <span className="font-semibold text-blue-600">
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span style={{ color: '#6b7280', fontSize: '14px' }}>สถานะ IN_TRANSIT:</span>
+                <span style={{ fontWeight: '600', color: '#3b82f6', fontSize: '16px' }}>
                   {stats?.inTransitStatus || 0} รายการ
                 </span>
               </div>
-              <div className="flex justify-between items-center border-t pt-3">
-                <span className="text-gray-600">รวมทั้งหมด:</span>
-                <span className="font-bold text-gray-800">
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderTop: '1px solid #e5e7eb',
+                paddingTop: '12px',
+                marginTop: '4px'
+              }}>
+                <span style={{ color: '#6b7280', fontSize: '14px' }}>รวมทั้งหมด:</span>
+                <span style={{ fontWeight: 'bold', color: '#1f2937', fontSize: '18px' }}>
                   {stats?.totalCollections || 0} รายการ
                 </span>
               </div>
@@ -193,53 +320,127 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Collections */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">การเก็บขยะล่าสุด</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <div style={{
+          background: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          padding: '24px'
+        }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#1f2937',
+            marginBottom: '16px'
+          }}>
+            การเก็บขยะล่าสุด
+          </h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
+                  <th style={{
+                    padding: '12px 16px',
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '13px'
+                  }}>
                     โรงพยาบาล
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th style={{
+                    padding: '12px 16px',
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '13px'
+                  }}>
                     พนักงาน
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th style={{
+                    padding: '12px 16px',
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '13px'
+                  }}>
                     วันที่เก็บ
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th style={{
+                    padding: '12px 16px',
+                    textAlign: 'center',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '13px'
+                  }}>
                     น้ำหนัก (กก.)
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th style={{
+                    padding: '12px 16px',
+                    textAlign: 'center',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '13px'
+                  }}>
                     สถานะ
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {stats?.recentCollections && stats.recentCollections.length > 0 ? (
-                  stats.recentCollections.map((collection) => (
-                    <tr key={collection.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  stats.recentCollections.map((collection, index) => (
+                    <tr
+                      key={collection.id}
+                      style={{
+                        borderBottom: '1px solid #e5e7eb',
+                        background: index % 2 === 0 ? 'white' : '#f9fafb',
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = index % 2 === 0 ? 'white' : '#f9fafb'}
+                    >
+                      <td style={{
+                        padding: '12px 16px',
+                        fontSize: '14px',
+                        color: '#1f2937'
+                      }}>
                         {collection.hospitalName}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td style={{
+                        padding: '12px 16px',
+                        fontSize: '14px',
+                        color: '#1f2937'
+                      }}>
                         {collection.driverName}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDateTime(collection.collectedAt)}
+                      <td style={{
+                        padding: '12px 16px',
+                        fontSize: '14px',
+                        color: '#1f2937'
+                      }}>
+                        {formatThaiDate(collection.collectedAt)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td style={{
+                        padding: '12px 16px',
+                        textAlign: 'center',
+                        fontWeight: '600',
+                        fontSize: '16px',
+                        color: '#10b981'
+                      }}>
                         {collection.weight.toFixed(2)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            collection.status === 'COLLECTED'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-blue-100 text-blue-800'
-                          }`}
-                        >
+                      <td style={{
+                        padding: '12px 16px',
+                        textAlign: 'center'
+                      }}>
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '4px 12px',
+                          borderRadius: '9999px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          background: collection.status === 'COLLECTED' ? '#d1fae5' : '#dbeafe',
+                          color: collection.status === 'COLLECTED' ? '#065f46' : '#1e40af'
+                        }}>
                           {collection.status === 'COLLECTED' ? 'จัดเก็บสำเร็จ' : 'นำส่งเตาเผา'}
                         </span>
                       </td>
@@ -247,7 +448,15 @@ export default function AdminDashboard() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                    <td
+                      colSpan={5}
+                      style={{
+                        padding: '48px 16px',
+                        textAlign: 'center',
+                        color: '#9ca3af',
+                        fontSize: '14px'
+                      }}
+                    >
                       ไม่มีข้อมูลการเก็บขยะ
                     </td>
                   </tr>
@@ -273,13 +482,43 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between">
+    <div style={{
+      background: 'white',
+      borderRadius: '12px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      padding: '24px'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
         <div>
-          <p className="text-sm text-gray-600">{title}</p>
-          <p className="text-3xl font-bold text-gray-800 mt-2">{value}</p>
+          <p style={{
+            fontSize: '14px',
+            color: '#6b7280',
+            marginBottom: '8px'
+          }}>
+            {title}
+          </p>
+          <p style={{
+            fontSize: '32px',
+            fontWeight: 'bold',
+            color: '#1f2937'
+          }}>
+            {value}
+          </p>
         </div>
-        <div className={`w-16 h-16 ${color} rounded-full flex items-center justify-center text-3xl`}>
+        <div style={{
+          width: '64px',
+          height: '64px',
+          background: color,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '32px'
+        }}>
           {icon}
         </div>
       </div>
@@ -302,16 +541,31 @@ function StatusBar({
 
   return (
     <div>
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-gray-600">{label}</span>
-        <span className="font-semibold text-gray-800">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        fontSize: '14px',
+        marginBottom: '8px'
+      }}>
+        <span style={{ color: '#6b7280' }}>{label}</span>
+        <span style={{ fontWeight: '600', color: '#1f2937' }}>
           {value} ({percentage.toFixed(1)}%)
         </span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div style={{
+        width: '100%',
+        background: '#e5e7eb',
+        borderRadius: '9999px',
+        height: '8px',
+        overflow: 'hidden'
+      }}>
         <div
-          className={`${color} h-2 rounded-full transition-all duration-300`}
-          style={{ width: `${percentage}%` }}
+          style={{
+            background: color,
+            height: '100%',
+            width: `${percentage}%`,
+            transition: 'width 0.3s ease'
+          }}
         />
       </div>
     </div>
