@@ -17,11 +17,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // ดึงข้อมูล admin
-  const admin = await prisma.admin.findUnique({
-  where: { id: adminId },  // ← ไม่ต้อง parseInt เพราะ id เป็น String (UUID)
-  select: { id: true, name: true, username: true, isActive: true },
-});
+    // ดึงข้อมูล admin (ไม่ต้อง parseInt เพราะ id เป็น string UUID)
+    const admin = await prisma.admin.findUnique({
+      where: { id: adminId },
+      select: { id: true, name: true, username: true, isActive: true },
+    });
 
     if (!admin || !admin.isActive) {
       return NextResponse.json(
