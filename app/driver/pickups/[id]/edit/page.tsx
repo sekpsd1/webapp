@@ -152,10 +152,22 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
   const handleDeletePhoto = async (photoId: string) => {
     if (!confirm('ต้องการลบรูปภาพนี้หรือไม่?')) return
 
-    // TODO: เรียก API ลบรูป
-    alert('ฟีเจอร์ลบรูปยังไม่เปิดใช้งาน')
-    // หลังลบสำเร็จให้ reload
-    // await loadPickup(pickupId)
+    try {
+      const response = await fetch(`/api/driver/pickups/photo/${photoId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        alert('ลบรูปภาพสำเร็จ')
+        // Reload ข้อมูล
+        await loadPickup(pickupId)
+      } else {
+        alert('เกิดข้อผิดพลาดในการลบรูปภาพ')
+      }
+    } catch (error) {
+      console.error('Error deleting photo:', error)
+      alert('เกิดข้อผิดพลาดในการลบรูปภาพ')
+    }
   }
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
