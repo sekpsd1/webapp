@@ -339,7 +339,7 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
                 {submitting ? 'กำลังบันทึก...' : '💾 บันทึกการแก้ไข'}
               </button>
               <button
-                type="button'
+                type="button"
                 onClick={() => router.back()}
                 disabled={submitting}
                 style={{
