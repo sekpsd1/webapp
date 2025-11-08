@@ -301,3 +301,4 @@ export default function PickupDetailPage({ params }: { params: Promise<{ id: str
     </div>
   )
 }
+
