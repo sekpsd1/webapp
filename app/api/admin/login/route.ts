@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ตรวจสอบรหัสผ่าน
+    // ตรวจสอบรหัสผ่าน (ใช้ passwordHash ไม่ใช่ password)
     const isPasswordValid = await bcrypt.compare(password, admin.passwordHash);
 
     if (!isPasswordValid) {
