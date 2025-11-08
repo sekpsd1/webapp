@@ -40,78 +40,162 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
-        <div className="text-center mb-8">
-          <div className="mx-auto w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-            <svg
-              className="w-10 h-10 text-purple-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-              />
-            </svg>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #7c3aed 0%, #2563eb 100%)',
+      padding: '16px'
+    }}>
+      <div style={{
+        maxWidth: '448px',
+        width: '100%',
+        background: 'white',
+        borderRadius: '16px',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        padding: '32px'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            background: '#ede9fe',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 16px',
+            fontSize: '40px'
+          }}>
+            🛡️
           </div>
-          <h1 className="text-3xl font-bold text-gray-800">Admin Login</h1>
-          <p className="text-gray-600 mt-2">ระบบจัดการขยะติดเชื้อโรงพยาบาล</p>
+          <h1 style={{
+            fontSize: '30px',
+            fontWeight: 'bold',
+            color: '#1f2937'
+          }}>
+            Admin Login
+          </h1>
+          <p style={{
+            color: '#6b7280',
+            marginTop: '8px',
+            fontSize: '14px'
+          }}>
+            ระบบจัดการขยะติดเชื้อโรงพยาบาล
+          </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div style={{
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              color: '#991b1b',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              fontSize: '14px'
+            }}>
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              marginBottom: '8px'
+            }}>
               ชื่อผู้ใช้
             </label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: '2px solid #d1d5db',
+                borderRadius: '8px',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'all 0.2s'
+              }}
               placeholder="admin"
               required
               disabled={loading}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#7c3aed'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#d1d5db'}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              marginBottom: '8px'
+            }}>
               รหัสผ่าน
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: '2px solid #d1d5db',
+                borderRadius: '8px',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'all 0.2s'
+              }}
               placeholder="••••••••"
               required
               disabled={loading}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#7c3aed'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#d1d5db'}
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            style={{
+              width: '100%',
+              background: loading ? '#9ca3af' : '#7c3aed',
+              color: 'white',
+              padding: '12px 0',
+              borderRadius: '8px',
+              fontWeight: '600',
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontSize: '16px',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) e.currentTarget.style.background = '#6d28d9';
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) e.currentTarget.style.background = '#7c3aed';
+            }}
           >
             {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
+        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+          <p style={{ fontSize: '14px', color: '#6b7280' }}>
             กลับไปหน้าหลัก{' '}
-            <a href="/" className="text-purple-600 hover:text-purple-700 font-medium">
+            <a href="/" style={{
+              color: '#7c3aed',
+              fontWeight: '500',
+              textDecoration: 'none'
+            }}>
               คลิกที่นี่
             </a>
           </p>
