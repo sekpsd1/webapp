@@ -13,10 +13,10 @@ interface DashboardStats {
   collectedStatus: number;
   inTransitStatus: number;
   recentCollections: Array<{
-    id: number;
+    id: string;
     hospitalName: string;
     driverName: string;
-    collectionDate: string;
+    collectedAt: string;
     weight: number;
     status: string;
   }>;
@@ -59,6 +59,18 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Logout error:', error);
     }
+  };
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('th-TH', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Asia/Bangkok',
+    }).format(date);
   };
 
   if (loading) {
@@ -215,13 +227,7 @@ export default function AdminDashboard() {
                         {collection.driverName}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(collection.collectionDate).toLocaleDateString('th-TH', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                        {formatDateTime(collection.collectedAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {collection.weight.toFixed(2)}
