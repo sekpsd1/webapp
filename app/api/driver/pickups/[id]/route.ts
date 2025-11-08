@@ -121,35 +121,34 @@ export async function PATCH(
     }
 
     // Update pickup
-    const updatedPickup = await prisma.pickup.update({
-      where: { id },
-      data: {
-        weightKg: parseFloat(weightKg),
-        status,
-        note: note || null,
-        collectedAt: new Date(collectedAt)
-      },
-      include: {
-        hospital: {
-          select: {
-            name: true,
-            code: true
-          }
-        },
-        driver: {
-          select: {
-            name: true
-          }
-        },
-        photos: {
-          select: {
-            id: true,
-            fileName: true
-          }
-        }
+   const updatedPickup = await prisma.pickup.update({
+  where: { id },
+  data: {
+    weightKg: parseFloat(weightKg),
+    status: status as any,  // ← เปลี่ยนบรรทัดนี้
+    note: note || null,
+    collectedAt: new Date(collectedAt)
+  },
+  include: {
+    hospital: {
+      select: {
+        name: true,
+        code: true
       }
-    })
-
+    },
+    driver: {
+      select: {
+        name: true
+      }
+    },
+    photos: {
+      select: {
+        id: true,
+        fileName: true
+      }
+    }
+  }
+})
     // อัพโหลดรูปภาพใหม่ (ถ้ามี)
     if (photos && photos.length > 0) {
       const uploadDir = join(process.cwd(), 'public', 'uploads')
