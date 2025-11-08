@@ -3,6 +3,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { PrismaClient } from '@prisma/client'
+import { writeFile, mkdir, access } from 'fs/promises'
+import { join } from 'path'
+import { constants } from 'fs'
 
 const prisma = new PrismaClient()
 
@@ -83,9 +86,13 @@ export async function PATCH(
     }
 
     const { id } = await params
-    const body = await request.json()
+    const formData = await request.formData()
 
-    const { weightKg, status, note, collectedAt } = body
+    const weightKg = formData.get('weightKg') as string
+    const status = formData.get('status') as string
+    const note = formData.get('note') as string
+    const collectedAt = formData.get('collectedAt') as string
+    const photos = formData.getAll('photos') as File[]
 
     // Validate required fields
     if (!weightKg || !status || !collectedAt) {
@@ -142,6 +149,50 @@ export async function PATCH(
         }
       }
     })
+
+    // อัพโหลดรูปภาพใหม่ (ถ้ามี)
+    if (photos && photos.length > 0) {
+      const uploadDir = join(process.cwd(), 'public', 'uploads')
+      
+      // สร้างโฟลเดอร์ครั้งเดียว
+      try {
+        await access(uploadDir, constants.W_OK)
+      } catch {
+        await mkdir(uploadDir, { recursive: true })
+      }
+
+      // Loop upload แต่ละรูป
+      for (const photo of photos) {
+        if (photo && photo.size > 0) {
+          try {
+            const bytes = await photo.arrayBuffer()
+            const buffer = Buffer.from(bytes)
+            
+            const timestamp = Date.now()
+            const cleanFileName = photo.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+            const fileName = `${timestamp}-${cleanFileName}`
+            const filePath = join(uploadDir, fileName)
+            
+            await writeFile(filePath, buffer)
+
+            // บันทึกข้อมูลรูปภาพลงฐานข้อมูล
+            await prisma.pickupPhoto.create({
+              data: {
+                pickupId: id,
+                fileName: fileName,
+                mimeType: photo.type,
+                fileSize: photo.size
+              }
+            })
+            
+            // หน่วงเวลาเล็กน้อยเพื่อให้ timestamp ไม่ซ้ำ
+            await new Promise(resolve => setTimeout(resolve, 10))
+          } catch (uploadError) {
+            console.error('Photo upload error:', uploadError)
+          }
+        }
+      }
+    }
 
     return NextResponse.json(updatedPickup)
   } catch (error) {
