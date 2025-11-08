@@ -32,6 +32,7 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
   const [status, setStatus] = useState('')
   const [note, setNote] = useState('')
   const [collectedAt, setCollectedAt] = useState('')
+  const [photos, setPhotos] = useState<File[]>([])
 
   useEffect(() => {
     params.then(p => {
@@ -114,17 +115,23 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
       
       const isoString = `${yearCE}-${month}-${day}T${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}:00`
 
+      // ใช้ FormData แทน JSON
+      const formData = new FormData()
+      formData.append('weightKg', weightKg)
+      formData.append('status', status)
+      formData.append('note', note || '')
+      formData.append('collectedAt', isoString)
+      
+      // เพิ่มรูปภาพ (ถ้ามี)
+      if (photos.length > 0) {
+        photos.forEach((photo) => {
+          formData.append('photos', photo)
+        })
+      }
+
       const response = await fetch(`/api/driver/pickups/${pickupId}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          weightKg: parseFloat(weightKg),
-          status,
-          note: note || null,
-          collectedAt: isoString,
-        }),
+        body: formData,
       })
 
       if (response.ok) {
@@ -149,6 +156,12 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
     alert('ฟีเจอร์ลบรูปยังไม่เปิดใช้งาน')
     // หลังลบสำเร็จให้ reload
     // await loadPickup(pickupId)
+  }
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setPhotos(Array.from(e.target.files))
+    }
   }
 
   if (loading) {
@@ -412,7 +425,7 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
                           }}
                           onClick={() => setSelectedPhoto(photo.fileName)}
                           onError={(e) => {
-                            e.currentTarget.parentElement!.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:36px;">📷</div>'
+                            (e.currentTarget.parentElement as HTMLElement)!.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:36px;">📷</div>'
                           }}
                         />
                         <button
@@ -446,6 +459,40 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
                   </p>
                 </div>
               )}
+
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '8px'
+                }}>
+                  อัปโหลดรูปเพิ่ม
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handlePhotoChange}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px'
+                  }}
+                />
+                {photos.length > 0 && (
+                  <p style={{ 
+                    fontSize: '14px', 
+                    color: '#6b7280',
+                    marginTop: '8px'
+                  }}>
+                    เลือก {photos.length} ไฟล์: {photos.map(p => p.name).join(', ')}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
