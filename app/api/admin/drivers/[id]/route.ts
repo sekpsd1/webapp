@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 // PUT - แก้ไขพนักงาน
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // ตรวจสอบ cookie
@@ -35,7 +35,7 @@ export async function PUT(
       );
     }
 
-    const { id } = params;
+    const { id } = await context.params;
     const { code, name, password, isActive } = await request.json();
 
     // Validate
@@ -99,7 +99,7 @@ export async function PUT(
 // DELETE - ลบพนักงาน
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // ตรวจสอบ cookie
@@ -125,7 +125,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = params;
+    const { id } = await context.params;
 
     // ตรวจสอบว่าพนักงานมีอยู่จริง
     const existingDriver = await prisma.driver.findUnique({
