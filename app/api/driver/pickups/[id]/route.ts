@@ -1,4 +1,4 @@
-// /api/driver/pickups/[id]/route.ts
+// /app/api/driver/pickups/[id]/route.ts
 
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
@@ -12,10 +12,18 @@ export async function GET(
 ) {
   try {
     const cookieStore = await cookies()
-    const driverSess = cookieStore.get('driver_sess')
+    const driver_code = cookieStore.get('driver_id')?.value
 
-    if (!driverSess?.value) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!driver_code) {
+      return NextResponse.json({ error: 'กรุณาเข้าสู่ระบบ' }, { status: 401 })
+    }
+
+    const driver = await prisma.driver.findUnique({
+      where: { code: driver_code }
+    })
+
+    if (!driver) {
+      return NextResponse.json({ error: 'ไม่พบพนักงาน' }, { status: 401 })
     }
 
     const { id } = await params
@@ -60,10 +68,18 @@ export async function PATCH(
 ) {
   try {
     const cookieStore = await cookies()
-    const driverSess = cookieStore.get('driver_sess')
+    const driver_code = cookieStore.get('driver_id')?.value
 
-    if (!driverSess?.value) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!driver_code) {
+      return NextResponse.json({ error: 'กรุณาเข้าสู่ระบบ' }, { status: 401 })
+    }
+
+    const driver = await prisma.driver.findUnique({
+      where: { code: driver_code }
+    })
+
+    if (!driver) {
+      return NextResponse.json({ error: 'ไม่พบพนักงาน' }, { status: 401 })
     }
 
     const { id } = await params
