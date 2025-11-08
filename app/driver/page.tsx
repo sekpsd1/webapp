@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface Hospital {
   id: string
@@ -666,7 +667,7 @@ export default function DriverPage() {
                                 objectFit: 'cover'
                               }}
                               onError={(e) => {
-                                e.currentTarget.parentElement!.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:36px;">📷</div>'
+                                (e.currentTarget.parentElement as HTMLElement).innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:36px;">📷</div>'
                               }}
                             />
                             <button
@@ -910,24 +911,21 @@ export default function DriverPage() {
                         )}
                       </td>
                       <td style={{ padding: '16px', textAlign: 'center' }}>
-                        <button
-                          onClick={() => handleEdit(pickup)}
+                        <Link
+                          href={`/driver/pickups/${pickup.id}`}
                           style={{
                             padding: '8px 16px',
-                            background: '#f59e0b',
+                            background: '#3b82f6',
                             color: 'white',
-                            border: 'none',
+                            textDecoration: 'none',
                             borderRadius: '6px',
                             fontWeight: '600',
                             fontSize: '13px',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
+                            display: 'inline-block'
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = '#d97706'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = '#f59e0b'}
                         >
-                          ✏️ แก้ไข
-                        </button>
+                          📋 ดูรายละเอียด
+                        </Link>
                       </td>
                     </tr>
                   ))}
