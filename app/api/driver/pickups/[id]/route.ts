@@ -102,23 +102,28 @@ export async function PATCH(
       )
     }
 
-    // Validate status
-    const validStatuses = [
-      'SCHEDULED',
-      'IN_PROGRESS',
-      'DONE',
-      'COLLECTED',
-      'EN_ROUTE',
-      'INCINERATED',
-      'CANCELLED'
-    ]
+   // Validate status - รองรับทุก status ที่เป็นไปได้
+const validStatuses = [
+  'SCHEDULED',
+  'IN_PROGRESS', 
+  'DONE',
+  'COLLECTED',
+  'IN_TRANSIT',
+  'EN_ROUTE',
+  'INCINERATED',
+  'CANCELLED'
+]
 
-    if (!validStatuses.includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid status' },
-        { status: 400 }
-      )
-    }
+if (!validStatuses.includes(status)) {
+  console.error('Invalid status received:', status)
+  console.error('Valid statuses:', validStatuses)
+  return NextResponse.json(
+    { error: `Invalid status: ${status}. Valid: ${validStatuses.join(', ')}` },
+    { status: 400 }
+  )
+}
+
+console.log('Status validation passed:', status)
 
     // Update pickup
    const updatedPickup = await prisma.pickup.update({
