@@ -13,6 +13,10 @@ interface Pickup {
   hospital: {
     name: string
   }
+  photos: Array<{
+    id: string
+    fileName: string
+  }>
 }
 
 export default function EditPickupPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,6 +25,7 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
   const [pickup, setPickup] = useState<Pickup | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
   
   // Form states
   const [weightKg, setWeightKg] = useState('')
@@ -58,19 +63,19 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
       setStatus(data.status)
       setNote(data.note || '')
       
-      // แปลง ISO → datetime-local (Asia/Bangkok)
+      // แปลง ISO → Thai format (DD/MM/YYYY HH:mm)
       const date = new Date(data.collectedAt)
       const utcTimestamp = date.getTime()
       const thailandTimestamp = utcTimestamp + (7 * 60 * 60 * 1000)
       const thailandDate = new Date(thailandTimestamp)
       
-      const year = thailandDate.getUTCFullYear()
-      const month = (thailandDate.getUTCMonth() + 1).toString().padStart(2, '0')
       const day = thailandDate.getUTCDate().toString().padStart(2, '0')
+      const month = (thailandDate.getUTCMonth() + 1).toString().padStart(2, '0')
+      const year = thailandDate.getUTCFullYear() + 543
       const hours = thailandDate.getUTCHours().toString().padStart(2, '0')
       const minutes = thailandDate.getUTCMinutes().toString().padStart(2, '0')
       
-      setCollectedAt(`${year}-${month}-${day}T${hours}:${minutes}`)
+      setCollectedAt(`${day}/${month}/${year} ${hours}:${minutes}`)
     } catch (error) {
       console.error('Error loading pickup:', error)
       alert('เกิดข้อผิดพลาดในการโหลดข้อมูล')
@@ -81,6 +86,13 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validate รูปแบบวันที่
+    const datePattern = /^\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}$/
+    if (!datePattern.test(collectedAt)) {
+      alert('รูปแบบวันที่ไม่ถูกต้อง กรุณากรอกในรูปแบบ วว/ดด/ปปปป ชช:นน\nตัวอย่าง: 08/11/2568 14:30')
+      return
+    }
     
     if (!weightKg || !status || !collectedAt) {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน')
@@ -90,12 +102,17 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
     setSubmitting(true)
 
     try {
-      // แปลง datetime-local (Asia/Bangkok) → UTC ISO
-      const localDate = new Date(collectedAt)
-      const thailandTimestamp = localDate.getTime()
-      const utcTimestamp = thailandTimestamp - (7 * 60 * 60 * 1000)
-      const utcDate = new Date(utcTimestamp)
-      const isoString = utcDate.toISOString()
+      // แปลง Thai format → UTC ISO
+      const parts = collectedAt.trim().split(' ')
+      const dateParts = parts[0].split('/')
+      const timeParts = parts[1].split(':')
+      
+      const day = dateParts[0].padStart(2, '0')
+      const month = dateParts[1].padStart(2, '0')
+      const yearBE = parseInt(dateParts[2])
+      const yearCE = yearBE - 543
+      
+      const isoString = `${yearCE}-${month}-${day}T${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}:00`
 
       const response = await fetch(`/api/driver/pickups/${pickupId}`, {
         method: 'PATCH',
@@ -123,6 +140,15 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleDeletePhoto = async (photoId: string) => {
+    if (!confirm('ต้องการลบรูปภาพนี้หรือไม่?')) return
+
+    // TODO: เรียก API ลบรูป
+    alert('ฟีเจอร์ลบรูปยังไม่เปิดใช้งาน')
+    // หลังลบสำเร็จให้ reload
+    // await loadPickup(pickupId)
   }
 
   if (loading) {
@@ -251,13 +277,8 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
                     fontSize: '14px'
                   }}
                 >
-                  <option value="SCHEDULED">กำหนดการ</option>
-                  <option value="IN_PROGRESS">กำลังดำเนินการ</option>
-                  <option value="DONE">เสร็จสิ้น</option>
                   <option value="COLLECTED">จัดเก็บสำเร็จ</option>
-                  <option value="EN_ROUTE">ระหว่างขนส่ง</option>
-                  <option value="INCINERATED">เผาทำลายแล้ว</option>
-                  <option value="CANCELLED">ยกเลิก</option>
+                  <option value="IN_TRANSIT">นำส่งเตาเผา</option>
                 </select>
               </div>
 
@@ -271,25 +292,57 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
                 }}>
                   วันที่เก็บ *
                 </label>
-                <input
-                  type="datetime-local"
-                  value={collectedAt}
-                  onChange={(e) => setCollectedAt(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '8px',
-                    fontSize: '14px'
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    value={collectedAt}
+                    onChange={(e) => setCollectedAt(e.target.value)}
+                    required
+                    placeholder="08/11/2568 14:30"
+                    style={{
+                      width: '100%',
+                      padding: '12px 40px 12px 16px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const now = new Date()
+                      const day = now.getDate().toString().padStart(2, '0')
+                      const month = (now.getMonth() + 1).toString().padStart(2, '0')
+                      const year = now.getFullYear() + 543
+                      const hours = now.getHours().toString().padStart(2, '0')
+                      const minutes = now.getMinutes().toString().padStart(2, '0')
+                      setCollectedAt(`${day}/${month}/${year} ${hours}:${minutes}`)
+                    }}
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      padding: '6px 8px',
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    title="วันนี้"
+                  >
+                    📅
+                  </button>
+                </div>
                 <p style={{ 
                   fontSize: '12px', 
                   color: '#6b7280',
                   marginTop: '4px'
                 }}>
-                  เวลาประเทศไทย (GMT+7)
+                  รูปแบบ: วัน/เดือน/ปี ชั่วโมง:นาที (กด 📅 = วันนี้)
                 </p>
               </div>
 
@@ -318,6 +371,81 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
                   }}
                 />
               </div>
+
+              {pickup.photos && pickup.photos.length > 0 && (
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    marginBottom: '8px'
+                  }}>
+                    รูปภาพปัจจุบัน
+                  </label>
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                    gap: '12px'
+                  }}>
+                    {pickup.photos.map((photo) => (
+                      <div 
+                        key={photo.id}
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '150px',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          background: '#f3f4f6',
+                          border: '2px solid #e5e7eb'
+                        }}
+                      >
+                        <img
+                          src={`/public/uploads/${photo.fileName}`}
+                          alt="รูปภาพ"
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => setSelectedPhoto(photo.fileName)}
+                          onError={(e) => {
+                            e.currentTarget.parentElement!.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:36px;">📷</div>'
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePhoto(photo.id)}
+                          style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '8px',
+                            padding: '6px 10px',
+                            background: '#dc2626',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ลบ
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ 
+                    fontSize: '12px', 
+                    color: '#6b7280',
+                    marginTop: '8px'
+                  }}>
+                    คลิกที่รูปเพื่อดูขนาดเต็ม
+                  </p>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
@@ -360,6 +488,54 @@ export default function EditPickupPage({ params }: { params: Promise<{ id: strin
           </form>
         </div>
       </div>
+
+      {/* Modal แสดงรูปใหญ่ */}
+      {selectedPhoto && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 60,
+            padding: '16px'
+          }}
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <button
+            onClick={() => setSelectedPhoto(null)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              padding: '12px',
+              background: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              fontSize: '24px',
+              width: '48px',
+              height: '48px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            ✕
+          </button>
+          <img
+            src={`/public/uploads/${selectedPhoto}`}
+            alt="รูปภาพขยาย"
+            style={{
+              maxWidth: '90%',
+              maxHeight: '90%',
+              objectFit: 'contain'
+            }}
+          />
+        </div>
+      )}
     </div>
   )
 }
