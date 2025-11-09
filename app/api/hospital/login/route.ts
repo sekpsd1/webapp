@@ -24,12 +24,12 @@ export async function POST(request: NextRequest) {
     const hospital = await prisma.hospital.findUnique({
       where: { code },
       select: {
-        id: true,
-        code: true,
-        name: true,
-        passwordHash: true,
-        isActive: true,
-      },
+  id: true,
+  code: true,
+  name: true,
+  password_hash: true,
+  is_active: true,
+},
     });
 
     console.log('Hospital found:', hospital ? 'Yes' : 'No');
