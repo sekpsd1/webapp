@@ -37,6 +37,13 @@ export async function PUT(
 
     const { id } = await context.params;
     const { code, name, password, isActive } = await request.json();
+    console.log('=== UPDATE HOSPITAL DEBUG ===');
+console.log('ID:', id);
+console.log('Code:', code);
+console.log('Name:', name);
+console.log('Password:', password ? 'YES' : 'NO');
+console.log('isActive:', isActive);
+console.log('============================');
 
     // ตรวจสอบว่าโรงพยาบาลมีอยู่จริง
     const existingHospital = await prisma.hospital.findUnique({
