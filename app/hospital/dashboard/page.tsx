@@ -92,28 +92,26 @@ export default function HospitalDashboardPage() {
   }, [])
 
   const loadPickups = async () => {
-    try {
-      const response = await fetch('/api/hospital/dashboard')
-      
-      if (response.status === 401) {
-        router.push('/hospital/login')
-        return
-      }
-
-      const data = await response.json()
-
-      if (Array.isArray(data)) {
-        setPickups(data)
-        if (data.length > 0) {
-          setHospitalName(data[0].hospital.name)
-        }
-      }
-    } catch (error) {
-      console.error('Error loading pickups:', error)
-    } finally {
-      setLoading(false)
+  try {
+    const response = await fetch('/api/hospital/dashboard')
+    
+    if (response.status === 401) {
+      router.push('/hospital/login')
+      return
     }
+
+    const data = await response.json()
+
+    if (data.success) {
+      setPickups(data.pickups)
+      setHospitalName(data.hospital.name)
+    }
+  } catch (error) {
+    console.error('Error loading pickups:', error)
+  } finally {
+    setLoading(false)
   }
+}
 
   const handleLogout = async () => {
     try {
