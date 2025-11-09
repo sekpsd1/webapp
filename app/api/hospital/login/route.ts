@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ตรวจสอบว่า hospital เปิดใช้งานหรือไม่
-    if (!hospital.isActive) {
+    if (!hospital.is_active) {
       return NextResponse.json(
         { error: 'บัญชีนี้ถูกระงับการใช้งาน' },
         { status: 403 }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ตรวจสอบรหัสผ่าน
-    const isPasswordValid = await bcrypt.compare(password, hospital.passwordHash);
+    const isPasswordValid = await bcrypt.compare(password, hospital.password_hash);
 
     console.log('Password valid:', isPasswordValid);
 
