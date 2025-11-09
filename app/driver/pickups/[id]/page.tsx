@@ -25,29 +25,25 @@ interface Pickup {
 }
 
 const getStatusText = (status: string): string => {
-  const statusMap: Record<string, string> = {
-    'SCHEDULED': 'กำหนดการ',
-    'IN_PROGRESS': 'กำลังดำเนินการ',
-    'DONE': 'เสร็จสิ้น',
-    'COLLECTED': 'จัดเก็บสำเร็จ',
-    'EN_ROUTE': 'ระหว่างขนส่ง',
-    'INCINERATED': 'เผาทำลายแล้ว',
-    'CANCELLED': 'ยกเลิก'
+  switch (status) {
+    case 'COLLECTED':
+      return 'จัดเก็บสำเร็จ'
+    case 'IN_TRANSIT':
+      return 'นำส่งเตาเผา'
+    default:
+      return status
   }
-  return statusMap[status] || status
 }
 
 const getStatusColor = (status: string): string => {
-  const colorMap: Record<string, string> = {
-    'SCHEDULED': '#6b7280',
-    'IN_PROGRESS': '#f59e0b',
-    'DONE': '#10b981',
-    'COLLECTED': '#10b981',
-    'EN_ROUTE': '#3b82f6',
-    'INCINERATED': '#8b5cf6',
-    'CANCELLED': '#ef4444'
+  switch (status) {
+    case 'COLLECTED':
+      return '#10b981'
+    case 'IN_TRANSIT':
+      return '#3b82f6'
+    default:
+      return '#6b7280'
   }
-  return colorMap[status] || '#6b7280'
 }
 
 const formatThaiDate = (dateString: string): string => {
