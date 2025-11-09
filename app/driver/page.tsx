@@ -169,9 +169,12 @@ export default function DriverPage() {
         }
       }
 
-      setHospitals([
-        { id: '', code: 'TEST001', name: 'โรงพยาบาลทดสอบ' }
-      ])
+    // ดึงรายการโรงพยาบาล
+const hospitalsRes = await fetch('/api/driver/hospitals')
+if (hospitalsRes.ok) {
+  const hospitalsData = await hospitalsRes.json()
+  setHospitals(hospitalsData)
+}
 
     } catch (error) {
       console.error('Error loading data:', error)
