@@ -24,12 +24,12 @@ export async function POST(request: NextRequest) {
     const hospital = await prisma.hospital.findUnique({
       where: { code },
       select: {
-  id: true,
-  code: true,
-  name: true,
-  password_hash: true,
-  is_active: true,
-},
+        id: true,
+        code: true,
+        name: true,
+        passwordHash: true,
+        isActive: true,
+      },
     });
 
     console.log('Hospital found:', hospital ? 'Yes' : 'No');
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ตรวจสอบว่า hospital เปิดใช้งานหรือไม่
-    if (!hospital.is_active) {
+    if (!hospital.isActive) {
       return NextResponse.json(
         { error: 'บัญชีนี้ถูกระงับการใช้งาน' },
         { status: 403 }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ตรวจสอบรหัสผ่าน
-    const isPasswordValid = await bcrypt.compare(password, hospital.password_hash);
+    const isPasswordValid = await bcrypt.compare(password, hospital.passwordHash);
 
     console.log('Password valid:', isPasswordValid);
 
