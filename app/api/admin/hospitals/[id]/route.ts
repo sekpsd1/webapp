@@ -38,14 +38,6 @@ export async function PUT(
     const { id } = await context.params;
     const { code, name, password, isActive } = await request.json();
 
-    // Validate
-    if (!name) {
-      return NextResponse.json(
-        { error: 'กรุณากรอกชื่อโรงพยาบาล' },
-        { status: 400 }
-      );
-    }
-
     // ตรวจสอบว่าโรงพยาบาลมีอยู่จริง
     const existingHospital = await prisma.hospital.findUnique({
       where: { id },
@@ -59,14 +51,29 @@ export async function PUT(
     }
 
     // เตรียมข้อมูลที่จะอัปเดต
-    const updateData: any = {
-      name,
-      isActive: isActive !== undefined ? isActive : existingHospital.isActive,
-    };
+    const updateData: any = {};
+
+    // ถ้ามี name ให้อัปเดต
+    if (name) {
+      updateData.name = name;
+    }
+
+    // ถ้ามี isActive ให้อัปเดต
+    if (isActive !== undefined) {
+      updateData.isActive = isActive;
+    }
 
     // ถ้ามีการเปลี่ยนรหัสผ่าน
     if (password) {
       updateData.passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    // ตรวจสอบว่ามีอะไรจะอัปเดตไหม
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { error: 'ไม่มีข้อมูลที่จะอัปเดต' },
+        { status: 400 }
+      );
     }
 
     // อัปเดตโรงพยาบาล
