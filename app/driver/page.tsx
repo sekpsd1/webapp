@@ -150,38 +150,38 @@ export default function DriverPage() {
   }, [])
 
   const loadData = async () => {
-    setLoading(true)
-    try {
-      const pickupsRes = await fetch('/api/driver')
-      
-      if (pickupsRes.status === 401) {
-        router.push('/driver/login')
-        return
-      }
-
-      const pickupsData = await pickupsRes.json()
-
-      if (Array.isArray(pickupsData)) {
-        setPickups(pickupsData)
-        
-        if (pickupsData.length > 0 && pickupsData[0].driver) {
-          setDriverName(pickupsData[0].driver.name)
-        }
-      }
-
-    // ดึงรายการโรงพยาบาล
-const hospitalsRes = await fetch('/api/driver/hospitals')
-if (hospitalsRes.ok) {
-  const hospitalsData = await hospitalsRes.json()
-  setHospitals(hospitalsData)
-}
-
-    } catch (error) {
-      console.error('Error loading data:', error)
-    } finally {
-      setLoading(false)
+  setLoading(true)
+  try {
+    const pickupsRes = await fetch('/api/driver')
+    
+    if (pickupsRes.status === 401) {
+      router.push('/driver/login')
+      return
     }
+
+    const pickupsData = await pickupsRes.json()
+
+    if (Array.isArray(pickupsData)) {
+      setPickups(pickupsData)
+      
+      if (pickupsData.length > 0 && pickupsData[0].driver) {
+        setDriverName(pickupsData[0].driver.name)
+      }
+    }
+
+    // ดึงรายการโรงพยาบาลจาก API
+    const hospitalsRes = await fetch('/api/driver/hospitals')
+    if (hospitalsRes.ok) {
+      const hospitalsData = await hospitalsRes.json()
+      setHospitals(hospitalsData)
+    }
+
+  } catch (error) {
+    console.error('Error loading data:', error)
+  } finally {
+    setLoading(false)
   }
+}
 
   const handleLogout = async () => {
     try {
