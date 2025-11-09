@@ -23,9 +23,9 @@ export default function HospitalLoginPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          hospital_code: code, 
-          password 
-        }),
+  code: code, 
+  password 
+}),
       })
 
       const data = await response.json()
