@@ -93,7 +93,7 @@ export default function HospitalDashboardPage() {
 
   const loadPickups = async () => {
     try {
-      const response = await fetch('/api/pickup')
+      const response = await fetch('/api/hospital/dashboard')
       
       if (response.status === 401) {
         router.push('/hospital/login')
