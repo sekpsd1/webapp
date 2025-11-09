@@ -51,21 +51,14 @@ const getStatusColor = (status: string): string => {
 const formatThaiDate = (dateString: string): string => {
   const date = new Date(dateString)
   
-  // แปลงเป็น UTC timestamp
-  const utcTimestamp = date.getTime()
+  // แปลงเป็นเวลาไทย (UTC+7)
+  const thaiDate = new Date(date.getTime() + (7 * 60 * 60 * 1000))
   
-  // เพิ่ม 7 ชั่วโมง (Thailand timezone)
-  const thailandTimestamp = utcTimestamp + (7 * 60 * 60 * 1000)
-  
-  // สร้าง Date object ใหม่
-  const thailandDate = new Date(thailandTimestamp)
-  
-  // ใช้ UTC methods เพื่อหลีกเลี่ยง browser timezone
-  const day = thailandDate.getUTCDate()
-  const month = thailandDate.getUTCMonth() + 1
-  const year = thailandDate.getUTCFullYear() + 543
-  const hours = thailandDate.getUTCHours().toString().padStart(2, '0')
-  const minutes = thailandDate.getUTCMinutes().toString().padStart(2, '0')
+  const day = thaiDate.getDate()
+  const month = thaiDate.getMonth() + 1
+  const year = thaiDate.getFullYear() + 543 // แปลง ค.ศ. เป็น พ.ศ.
+  const hours = thaiDate.getHours().toString().padStart(2, '0')
+  const minutes = thaiDate.getMinutes().toString().padStart(2, '0')
   
   const monthNames = [
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
@@ -92,26 +85,28 @@ export default function HospitalDashboardPage() {
   }, [])
 
   const loadPickups = async () => {
-  try {
-    const response = await fetch('/api/hospital/dashboard')
-    
-    if (response.status === 401) {
-      router.push('/hospital/login')
-      return
-    }
+    try {
+      const response = await fetch('/api/pickup')
+      
+      if (response.status === 401) {
+        router.push('/hospital/login')
+        return
+      }
 
-    const data = await response.json()
+      const data = await response.json()
 
-    if (data.success) {
-      setPickups(data.pickups)
-      setHospitalName(data.hospital.name)
+      if (Array.isArray(data)) {
+        setPickups(data)
+        if (data.length > 0) {
+          setHospitalName(data[0].hospital.name)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading pickups:', error)
+    } finally {
+      setLoading(false)
     }
-  } catch (error) {
-    console.error('Error loading pickups:', error)
-  } finally {
-    setLoading(false)
   }
-}
 
   const handleLogout = async () => {
     try {
@@ -348,7 +343,7 @@ export default function HospitalDashboardPage() {
                 ${selectedPickup.photos.map((photo, index) => `
                   <div class="photo-item">
                     <img 
-                      src="/public/uploads/${photo.fileName}" 
+                      src="/uploads/${photo.fileName}" 
                       alt="รูปที่ ${index + 1}"
                       onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'padding:50px;text-align:center;color:#9ca3af;\\'>📷<br>ไม่สามารถโหลดรูปได้</div>'"
                     />
@@ -755,7 +750,7 @@ export default function HospitalDashboardPage() {
                       onClick={() => setSelectedPhoto(photo.fileName)}
                     >
                       <img
-                        src={`/public/uploads/${photo.fileName}`}
+                        src={`/uploads/${photo.fileName}`}
                         alt={`รูปที่ ${photo.id}`}
                         style={{
                           width: '100%',
@@ -812,7 +807,7 @@ export default function HospitalDashboardPage() {
             ✕
           </button>
           <img
-            src={`/public/uploads/${selectedPhoto}`}
+            src={`/uploads/${selectedPhoto}`}
             alt="รูปภาพขยาย"
             style={{
               maxWidth: '90%',
